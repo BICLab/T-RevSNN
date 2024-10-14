@@ -84,7 +84,6 @@ class MS_SpikeConvNextBlock_Reuse(nn.Module):
         drop_path=0.00,
         pwconv2_reuse=None,
         dwconv2_reuse=None,
-        ref=False,
     ):
         super().__init__()
         self.dwconv1 = nn.Conv2d(
@@ -135,7 +134,7 @@ class MS_SpikeConvNextBlock_Reuse(nn.Module):
 
 class Level(nn.Module):
     def __init__(
-        self, level, channels, layers, kernel_size, first_col, dp_rate=0.0, pwconv2_reuse=None, dwconv2_reuse=None, ref=False,
+        self, level, channels, layers, kernel_size, first_col, dp_rate=0.0, pwconv2_reuse=None, dwconv2_reuse=None,
     ) -> None:
         super().__init__()
         assert pwconv2_reuse is not None
@@ -149,7 +148,6 @@ class Level(nn.Module):
                 int(4 * channels[level]),
                 channels[level],
                 kernel_size=kernel_size,
-                ref=ref,
             ),
             MS_SpikeConvNextBlock_Reuse(
                 channels[level],
@@ -158,7 +156,6 @@ class Level(nn.Module):
                 kernel_size=kernel_size,
                 pwconv2_reuse=pwconv2_reuse,
                 dwconv2_reuse=dwconv2_reuse,
-                ref=ref,
             ),
         ]
 
@@ -183,7 +180,6 @@ class SubNet(nn.Module):
         dwconv2_reuse_stage2=None,
         pwconv2_reuse_stage3=None,
         dwconv2_reuse_stage3=None,
-        ref=False,
     ) -> None:
         super().__init__()
         assert pwconv2_reuse_stage0 is not None
@@ -233,13 +229,13 @@ class SubNet(nn.Module):
             else None
         )
 
-        self.level0 = Level(0, channels, layers, kernel_size, first_col, dp_rates, pwconv2_reuse=pwconv2_reuse_stage0, dwconv2_reuse=dwconv2_reuse_stage0, ref=ref)
+        self.level0 = Level(0, channels, layers, kernel_size, first_col, dp_rates, pwconv2_reuse=pwconv2_reuse_stage0, dwconv2_reuse=dwconv2_reuse_stage0)
 
-        self.level1 = Level(1, channels, layers, kernel_size, first_col, dp_rates, pwconv2_reuse=pwconv2_reuse_stage1, dwconv2_reuse=dwconv2_reuse_stage1, ref=ref)
+        self.level1 = Level(1, channels, layers, kernel_size, first_col, dp_rates, pwconv2_reuse=pwconv2_reuse_stage1, dwconv2_reuse=dwconv2_reuse_stage1)
 
-        self.level2 = Level(2, channels, layers, kernel_size, first_col, dp_rates, pwconv2_reuse=pwconv2_reuse_stage2, dwconv2_reuse=dwconv2_reuse_stage2, ref=ref)
+        self.level2 = Level(2, channels, layers, kernel_size, first_col, dp_rates, pwconv2_reuse=pwconv2_reuse_stage2, dwconv2_reuse=dwconv2_reuse_stage2)
 
-        self.level3 = Level(3, channels, layers, kernel_size, first_col, dp_rates, pwconv2_reuse=pwconv2_reuse_stage3, dwconv2_reuse=dwconv2_reuse_stage3, ref=ref)
+        self.level3 = Level(3, channels, layers, kernel_size, first_col, dp_rates, pwconv2_reuse=pwconv2_reuse_stage3, dwconv2_reuse=dwconv2_reuse_stage3)
 
     def _forward_reverse(self, *args):
         local_funs = [self.level0, self.level1, self.level2, self.level3]
@@ -348,10 +344,7 @@ class FullNet(nn.Module):
         drop_path=0.0,
         save_memory=True,
         inter_supv=True,
-        kind="conv-conv",
         dvs=False,
-        ref=False,
-        head_init_scale=None,
     ) -> None:
         super().__init__()
         self.num_subnet = num_subnet
@@ -427,7 +420,6 @@ class FullNet(nn.Module):
                     dwconv2_reuse_stage2=dwconv2_reuse_stage2,
                     pwconv2_reuse_stage3=pwconv2_reuse_stage3,
                     dwconv2_reuse_stage3=dwconv2_reuse_stage3,
-                    ref=ref,
                 )
             )
 
@@ -496,8 +488,8 @@ class FullNet(nn.Module):
 ##-------------------------------------- Tiny -----------------------------------------
 
 
-def spike_revcol_tiny_reuse(
-    save_memory, inter_supv=True, drop_path=0.0, num_classes=1000, kernel_size=3, kind="conv-conv"
+def tiny(
+    save_memory, inter_supv=True, drop_path=0.0, num_classes=1000, kernel_size=3
 ):
     channels = [64, 128, 256, 384]
     layers = [1, 1, 1, 1]
@@ -511,12 +503,11 @@ def spike_revcol_tiny_reuse(
         save_memory=save_memory,
         inter_supv=inter_supv,
         kernel_size=kernel_size,
-        kind=kind,
     )
 
 
-def spike_revcol_tiny_reuse_dvs(
-    save_memory, inter_supv=True, drop_path=0.0, num_classes=1000, kernel_size=3, kind="conv-conv"
+def tiny_dvs(
+    save_memory, inter_supv=True, drop_path=0.0, num_classes=1000, kernel_size=3
 ):
     channels = [32, 64, 128, 256]
     layers = [1, 1, 1, 1]
@@ -530,7 +521,6 @@ def spike_revcol_tiny_reuse_dvs(
         save_memory=save_memory,
         inter_supv=inter_supv,
         kernel_size=kernel_size,
-        kind=kind,
         dvs=True,
     )
 
@@ -538,8 +528,8 @@ def spike_revcol_tiny_reuse_dvs(
 ##-------------------------------------- Small -----------------------------------------
 
 
-def spike_revcol_small_reuse(
-    save_memory, inter_supv=True, drop_path=0.0, num_classes=1000, kernel_size=3, kind="conv-conv"
+def small(
+    save_memory, inter_supv=True, drop_path=0.0, num_classes=1000, kernel_size=3
 ):
     channels = [96, 192, 384, 512]
     layers = [1, 1, 1, 1]
@@ -553,5 +543,4 @@ def spike_revcol_small_reuse(
         save_memory=save_memory,
         inter_supv=inter_supv,
         kernel_size=kernel_size,
-        kind=kind,
     )

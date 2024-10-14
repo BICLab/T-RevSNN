@@ -5,7 +5,7 @@
 # Written by Yuxuan Cai
 # --------------------------------------------------------
 
-from models.spike_rev_reuse import spike_revcol_tiny_reuse, spike_revcol_tiny_reuse_dvs, spike_revcol_small_reuse
+from models.spike_rev_reuse import tiny, tiny_dvs, small
 
 
 def build_model(config):
@@ -13,8 +13,8 @@ def build_model(config):
 
     ##-------------------------------------- tiny ----------------------------------------------------------------------------------------------------------------------#
 
-    if model_type == "spike_revcol_tiny_reuse":
-        model = spike_revcol_tiny_reuse(
+    if model_type == "tiny":
+        model = tiny(
             save_memory=config.REVCOL.SAVEMM,
             inter_supv=config.REVCOL.INTER_SUPV,
             drop_path=config.REVCOL.DROP_PATH,
@@ -23,8 +23,8 @@ def build_model(config):
             kind=config.REVCOL.LEVEL_KIND,
         )
 
-    elif model_type == "spike_revcol_tiny_reuse_dvs":
-        model = spike_revcol_tiny_reuse_dvs(
+    elif model_type == "tiny_dvs":
+        model = tiny_dvs(
             save_memory=config.REVCOL.SAVEMM,
             inter_supv=False,
             drop_path=config.REVCOL.DROP_PATH,
@@ -36,8 +36,8 @@ def build_model(config):
 
     ##-------------------------------------- small ----------------------------------------------------------------------------------------------------------------------#
     
-    elif model_type == "spike_revcol_small_reuse":
-        model = spike_revcol_small_reuse(
+    elif model_type == "small":
+        model = small(
             save_memory=config.REVCOL.SAVEMM,
             inter_supv=config.REVCOL.INTER_SUPV,
             drop_path=config.REVCOL.DROP_PATH,

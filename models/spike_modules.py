@@ -42,7 +42,6 @@ class MS_SpikeConvNextBlock(nn.Module):
         kernel_size=3,
         layer_scale_init_value=1,
         drop_path=0.00,
-        ref=False,
     ):
         super().__init__()
         self.dwconv1 = nn.Conv2d(
