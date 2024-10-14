@@ -1,0 +1,57 @@
+PRINT_FREQ: 100
+SAVE_FREQ: 1
+MODEL_EMA: True
+MODEL_EMA_DECAY: 0.9992
+DATA:
+  IMG_SIZE: 224
+  NUM_WORKERS: 8
+MODEL:
+  TYPE: spike_revcol_small_reuse
+  NAME: spike_revcol_small_reuse
+  LABEL_SMOOTHING: 0.1
+REVCOL:
+  INTER_SUPV: True
+  SAVEMM: True
+  CCOE: 1.0
+  DROP_PATH: 0.0
+  KERNEL_SIZE: 5
+TRAIN:
+  AMP: True
+  EPOCHS: 300
+  # BASE_LR: 1e-3  # 1e-3 for adamw
+  BASE_LR: 2e-3  # TODO
+  WARMUP_EPOCHS: 20
+  # WEIGHT_DECAY: 0.05  # 0.05 for adamw
+  WEIGHT_DECAY: 0.01
+  WARMUP_LR: 1e-5
+  MIN_LR: 1e-6
+  OPTIMIZER:
+    # NAME: 'adamw'  # admaw for cnn
+    NAME: 'lamb'
+  # CLIP_GRAD: 0.0
+  CLIP_GRAD: 0.02
+AUG:
+  COLOR_JITTER: 0.4
+  # COLOR_JITTER: 0.0
+# Use AutoAugment policy. "v0" or "original"
+  AUTO_AUGMENT: 'rand-m9-mstd0.5-inc1'
+# Random erase prob
+  REPROB: 0.25
+# Random erase mode
+  REMODE: 'pixel'
+# Random erase count
+  RECOUNT: 1
+# Mixup alpha, mixup enabled if > 0
+  MIXUP: 0.0
+# Cutmix alpha, cutmix enabled if > 0
+  CUTMIX: 0.0
+# Cutmix min/max ratio, overrides alpha and enables cutmix if set
+  CUTMIX_MINMAX: None
+# Probability of performing mixup or cutmix when either/both is enabled
+  MIXUP_PROB: 1.0
+# Probability of switching to cutmix when both mixup and cutmix enabled
+  MIXUP_SWITCH_PROB: 0.5
+# How to apply mixup/cutmix params. Per "batch", "pair", or "elem"
+  MIXUP_MODE: 'batch'
+
+# EVAL_MODE: True
