@@ -3,6 +3,5 @@ main_no_decoder.py \
 --cfg configs/small.yaml \
 --data-path /public/liguoqi/imagenet1-k \
 --batch-size 512 \
---tag ms_quant_tiny_no_decoder_ema \
---level-kind conv-conv \
---output /public/liguoqi/imagenet/spike_revcol_results
+--tag small_baseline \
+--output /public/liguoqi/imagenet/t_revsnn
