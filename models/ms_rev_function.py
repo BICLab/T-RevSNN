@@ -33,7 +33,7 @@ def detach_and_grad(inputs: Tuple[Any, ...]) -> Tuple[mindspore.Tensor, ...]:
                 out.append(inp)
                 continue
 
-            x = inp.detach()
+            x = inp.clone() # NOTE(hujiakui): detach -> clone, following https://www.hiascend.com/forum/thread-0289146760766805055-1-1.html
             x.requires_grad = True
             out.append(x)
         return tuple(out)
