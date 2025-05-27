@@ -125,17 +125,17 @@ class MS_SpikeConvNextBlock(nn.Cell):
     def construct(self, x):
         shortcut = x
         if self.training:
-            x = Quant.apply(x)
+            x = Quant(x)
         else:
             x = mindspore.clamp(x, 0, 1)
-            x.round_()
+            x.round()
         x = self.dwconv1(x)
         x = self.pwconv1(x)
         if self.training:
-            x = Quant.apply(x)
+            x = Quant(x)
         else:
             x = mindspore.clamp(x, 0, 1)
-            x.round_()
+            x.round()
         x = self.pwconv2(x)
         x = self.dwconv2(x)
         x = shortcut + x * self.gamma
@@ -170,10 +170,10 @@ class DownSampling(nn.Cell):
 
     def construct(self, x):
         if self.training:
-            x = Quant.apply(x)
+            x = Quant(x)
         else:
             x = mindspore.clamp(x, 0, 1)
-            x.round_()
+            x.round()
         if self.reshape:
             x = x.squeeze(0)
         x = self.encode_conv(x)
@@ -211,10 +211,10 @@ class UpSampling(nn.Cell):
 
     def construct(self, x):
         if self.training:
-            x = Quant.apply(x)
+            x = Quant(x)
         else:
             x = mindspore.clamp(x, 0, 1)
-            x.round_()
+            x.round()
         x = x.squeeze(0)
         x = self.encode_conv(x)
         x = self.encode_bn(x)
