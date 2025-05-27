@@ -113,17 +113,17 @@ class MS_SpikeConvNextBlock_Reuse(nn.Cell):
     def construct(self, x):
         shortcut = x
         if self.training:
-            x = Quant.apply(x)
+            x = Quant(x)
         else:
             x = mindspore.clamp(x, 0, 1)
-            x.round_()
+            x.round()
         x = self.dwconv1(x)
         x = self.pwconv1(x)
         if self.training:
-            x = Quant.apply(x)
+            x = Quant(x)
         else:
             x = mindspore.clamp(x, 0, 1)
-            x.round_()
+            x.round()
         x = self.pwconv2_reuse(x)
         x = self.dwconv2_reuse(x)
         # x = shortcut + x * self.gamma
@@ -239,8 +239,8 @@ class SubNet(nn.Cell):
     def _construct_reverse(self, *args):
         local_funs = [self.level0, self.level1, self.level2, self.level3]
         alpha = [self.alpha0, self.alpha1, self.alpha2, self.alpha3]
-        # _, c0, c1, c2, c3 = SpikeReverseFunction.apply(local_funs, *args)
-        _, c0, c1, c2, c3 = ReverseFunction.apply(local_funs, alpha, *args)
+        # _, c0, c1, c2, c3 = SpikeReverseFunction(local_funs, *args)
+        _, c0, c1, c2, c3 = ReverseFunction(local_funs, alpha, *args)
         return c0, c1, c2, c3
 
     def construct(self, *args):
@@ -288,10 +288,10 @@ class SpikeClassifier(nn.Cell):
     def construct(self, x):
         # NOTE: only for T = 1
         if self.training:
-            x = Quant.apply(x, 0, 1)
+            x = Quant(x, 0, 1)
         else:
             x = mindspore.clamp(x, 0, 1)
-            x.round_()
+            x.round()
         x = x.squeeze(0).mean(dim=[-1, -2], keepdim=True)
         x = self.classifier1(x)
         x = mindspore.nn.functional.leaky_relu(x, self.act_learn)
@@ -434,7 +434,7 @@ class FullNet(nn.Cell):
                 ]
             )
 
-        self.apply(self._init_weights)
+        self(self._init_weights)
 
     def construct(self, x):
         if self.dvs:
