@@ -192,7 +192,7 @@ class SubNet(nn.Cell):
         self.save_memory = save_memory
         shortcut_scale_init_value = 0.5
         self.alpha0 = (
-            nn.Parameter(
+            mindspore.Parameter(
                 shortcut_scale_init_value * mindspore.ones((1, channels[0], 1, 1)),
                 requires_grad=True,
                 # requires_grad=False,
@@ -201,7 +201,7 @@ class SubNet(nn.Cell):
             else None
         )
         self.alpha1 = (
-            nn.Parameter(
+            mindspore.Parameter(
                 shortcut_scale_init_value * mindspore.ones((1, channels[1], 1, 1)),
                 requires_grad=True,
                 # requires_grad=False,
@@ -210,7 +210,7 @@ class SubNet(nn.Cell):
             else None
         )
         self.alpha2 = (
-            nn.Parameter(
+            mindspore.Parameter(
                 shortcut_scale_init_value * mindspore.ones((1, channels[2], 1, 1)),
                 requires_grad=True,
                 # requires_grad=False,
@@ -219,7 +219,7 @@ class SubNet(nn.Cell):
             else None
         )
         self.alpha3 = (
-            nn.Parameter(
+            mindspore.Parameter(
                 shortcut_scale_init_value * mindspore.ones((1, channels[3], 1, 1)),
                 requires_grad=True,
                 # requires_grad=False,
@@ -294,7 +294,7 @@ class SpikeClassifier(nn.Cell):
             x.round()
         x = x.squeeze(0).mean(dim=[-1, -2], keepdim=True)
         x = self.classifier1(x)
-        x = mindspore.nn.functional.leaky_relu(x, self.act_learn)
+        x = mindspore.mint.nn.functional.leaky_relu(x, self.act_learn)
         x = self.classifier2(x).view(x.size(0), -1)
         return x
 
@@ -314,7 +314,7 @@ class MS_PatchEmbed(nn.Cell):
 
     def construct(self, x):
         x = self.down1(x)
-        x = mindspore.nn.functional.leaky_relu(x, self.act_learn)
+        x = mindspore.mint.nn.functional.leaky_relu(x, self.act_learn)
         x = self.down2(x)
         return None, x
 
@@ -434,7 +434,7 @@ class FullNet(nn.Cell):
                 ]
             )
 
-        self(self._init_weights)
+        # self(self._init_weights)
 
     def construct(self, x):
         if self.dvs:
@@ -468,15 +468,15 @@ class FullNet(nn.Cell):
 
         return x_cls_out
 
-    def _init_weights(self, module):
-        if isinstance(module, nn.Conv2d):
-            # trunc_normal_(module.weight, std=0.02)
-            if module.bias is not None:
-                nn.init.constant_(module.bias, 0)
-        elif isinstance(module, nn.BatchNorm2d):
-            nn.init.constant_(module.weight, 1.0)
-            if module.bias is not None:
-                nn.init.constant_(module.bias, 0)
+    # def _init_weights(self, module):
+    #     if isinstance(module, nn.Conv2d):
+    #         # trunc_normal_(module.weight, std=0.02)
+    #         if module.bias is not None:
+    #             nn.init.constant_(module.bias, 0)
+    #     elif isinstance(module, nn.BatchNorm2d):
+    #         nn.init.constant_(module.weight, 1.0)
+    #         if module.bias is not None:
+    #             nn.init.constant_(module.bias, 0)
 
     def change_act(self, m):
         for module in self.modules():
