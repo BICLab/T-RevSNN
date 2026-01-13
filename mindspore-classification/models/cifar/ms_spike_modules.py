@@ -93,8 +93,9 @@ class Quant(nn.Cell):
         x_clip = self.clip(x, min_value, max_value)
         return self.floor(x_clip + 0.5)
 
-    def bprop(self, x, min_value, max_value, out, dout):
-        mask = (x >= min_value) & (x <= max_value)
+    def bprop(self, x, out, dout):
+        # TODO hardcode
+        mask = (x >= 0) & (x <= 1)
         dx = dout * mask
         return dx, None, None
 

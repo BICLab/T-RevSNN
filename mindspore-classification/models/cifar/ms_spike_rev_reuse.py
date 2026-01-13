@@ -237,15 +237,16 @@ class FullNet(nn.Cell):
         self.num_subnet = num_subnet
         self.inter_supv = inter_supv
         self.dvs = dvs
+        self.channels = channels
 
         self.stem = MS_PatchEmbed(channels[0], num_subnet=num_subnet)
 
-        # ---------- drop path ----------
-        dp_rate = ops.linspace(
-            mindspore.Tensor(0, mindspore.float32),
-            mindspore.Tensor(drop_path, mindspore.float32),
-            sum(layers)
-        ).asnumpy().tolist()
+        # # ---------- drop path ----------
+        # dp_rate = ops.linspace(
+        #     mindspore.Tensor(0, mindspore.float32),
+        #     mindspore.Tensor(drop_path, mindspore.float32),
+        #     sum(layers)
+        # ).asnumpy().tolist()
 
         # ---------- reuse conv ----------
         pwconv2_reuse_stage0 = ScaledStdConv2d(channels[0] * 4, channels[0], 1)
@@ -327,10 +328,15 @@ class FullNet(nn.Cell):
 
     def _forward(self, img):
         outputs = []
-        c0 = c1 = c2 = c3 = 0
 
         _, x = self.stem(img)
         interval = self.num_subnet // 4
+
+        # c0 = c1 = c2 = c3 = 0
+        c0 = ops.zeros((1, img.shape[0], self.channels[0], x.shape[2], x.shape[3]))
+        c1 = ops.zeros((1, img.shape[0], self.channels[1], x.shape[2] // 2, x.shape[3] // 2))
+        c2 = ops.zeros((1, img.shape[0], self.channels[2], x.shape[2] // 4, x.shape[3] // 4))
+        c3 = ops.zeros((1, img.shape[0], self.channels[3], x.shape[2] // 4, x.shape[3] // 4))
 
         for i in range(self.num_subnet):
             c0, c1, c2, c3 = self.subnets[i](self.unsqueeze0(x, 0), c0, c1, c2, c3)

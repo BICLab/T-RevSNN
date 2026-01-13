@@ -47,15 +47,14 @@ class ReverseFunction(nn.Cell):
 
         return x, c0_out, c1_out, c2_out, c3_out
 
-    def bprop(self, x, c0, c1, c2, c3, alpha, out, dout):
+    def bprop(self, x, c0, c1, c2, c3, alpha0, alpha1, alpha2, alpha3, out, dout):
         _, g0, g1, g2, g3 = dout
-        alpha0, alpha1, alpha2, alpha3 = alpha
 
         # -------- l3 --------
         def l3_fn(c2):
             return self.l3(c2, None)
 
-        _, grad_c2 = self.grad_op(l3_fn)(c2, g3)
+        grad_c2 = self.grad_op(l3_fn)(c2, g3)
         g2 = g2 + grad_c2
         g3_left = g3 * alpha3
 
@@ -63,7 +62,7 @@ class ReverseFunction(nn.Cell):
         def l2_fn(c1, c3):
             return self.l2(c1, c3)
 
-        _, grad_c1, grad_c3 = self.grad_op(l2_fn)(c1, c3, g2)
+        grad_c1, grad_c3 = self.grad_op(l2_fn)(c1, c3, ops.Squeeze(0)(g2))
         g1 = g1 + grad_c1
         g3_left = g3_left + grad_c3
         g2_left = g2 * alpha2
@@ -72,7 +71,7 @@ class ReverseFunction(nn.Cell):
         def l1_fn(c0, c2):
             return self.l1(c0, c2)
 
-        _, grad_c0, grad_c2 = self.grad_op(l1_fn)(c0, c2, g1)
+        grad_c0, grad_c2 = self.grad_op(l1_fn)(c0, c2, g1)
         g0 = g0 + grad_c0
         g2_left = g2_left + grad_c2
         g1_left = g1 * alpha1
@@ -81,7 +80,7 @@ class ReverseFunction(nn.Cell):
         def l0_fn(x, c1):
             return self.l0(x, c1)
 
-        grad_x, _, grad_c1 = self.grad_op(l0_fn)(x, c1, g0)
+        grad_x, grad_c1 = self.grad_op(l0_fn)(x, c1, g0)
         g1_left = g1_left + grad_c1
         g0_left = g0 * alpha0
 
@@ -91,5 +90,8 @@ class ReverseFunction(nn.Cell):
             g1_left,
             g2_left,
             g3_left,
+            None,
+            None,
+            None,
             None,
         )
